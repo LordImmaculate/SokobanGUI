@@ -4,21 +4,27 @@ namespace SokobanGUI.Models;
 
 public class GameState
 {
-    public readonly TileObject?[,] Grid = new TileObject[10, 10];
+    public readonly TileObject?[,,] Grid = new TileObject[10, 10, 2];
 
     private int PlayerX { get; set; }
     private int PlayerY { get; set; }
-    
-    private int IsPlayerOnGoal { get; set; }
 
     public int Rows => Grid.GetLength(0);
     public int Cols => Grid.GetLength(1);
 
+    public bool HasWon;
+
     public GameState()
     {
-        Grid[2, 3] = new Box(false);
-        Grid[2, 2] = new Player();
-        Grid[3, 3] = new Goal();
+        Grid[2, 2, 1] = new Player();
+        
+        Grid[3, 3, 0] = new Goal();
+        Grid[2, 3, 1] = new Box();
+        
+        Grid[7, 7, 0] = new Goal();
+        Grid[6, 6, 1] = new Box();
+        
+        Grid[8, 8, 0] = new Void();
 
         for (int y = 0; y < Rows; y++)
         {
@@ -26,7 +32,7 @@ public class GameState
             {
                 if (x == 0 || y == 0 || x == Cols - 1 || y == Rows - 1)
                 {
-                    Grid[y, x] = new Wall();
+                    Grid[y, x, 0] = new Wall();
                 }
             }
         }
@@ -39,38 +45,58 @@ public class GameState
     {
         int newX = PlayerX + dx;
         int newY = PlayerY + dy;
-
-        switch (Grid[newY, newX])
+        
+        switch (Grid[newY, newX, 1])
         {
-            case null:
-                Grid[PlayerY, PlayerX] = null;
-                PlayerX = newX;
-                PlayerY = newY;
-                Grid[PlayerY, PlayerX] = new Player();
-                break;
-            
             case Box:
                 int boxX = newX;
                 int boxY = newY;
-
+            
                 int newBoxX = boxX + dx;
                 int newBoxY = boxY + dy;
+            
+                Goal goal = Grid[newBoxY, newBoxX, 0] as Goal;
+            
+                if (Grid[newBoxY, newBoxX, 0] != null || Grid[newBoxY, newBoxX, 1] != null) if(goal == null) return;
                 
-                Box box = Grid[boxY, boxX] as Box;
-
-                Goal goal = Grid[newBoxY, newBoxX] as Goal;
-
-                if (Grid[newBoxY, newBoxX] != null) if(goal == null) return;
-
-                if (box.OnGoal) Grid[boxY, boxX] = new Goal();
-                Grid[boxY, boxX] = null;
-                Grid[newBoxY, newBoxX] = new Box(goal != null);
-
-                Grid[PlayerY, PlayerX] = null;
+                Grid[boxY, boxX, 1] = null;
+                Grid[newBoxY, newBoxX, 1] = new Box();
+            
+                Grid[PlayerY, PlayerX, 1] = null;
                 PlayerX = newX;
                 PlayerY = newY;
-                Grid[PlayerY, PlayerX] = new Player();
+                Grid[PlayerY, PlayerX, 1] = new Player();
                 break;
         }
+
+        switch (Grid[newY, newX, 0])
+        {
+            case null or Goal:
+                Grid[PlayerY, PlayerX, 1] = null;
+                PlayerX = newX;
+                PlayerY = newY;
+                Grid[PlayerY, PlayerX, 1] = new Player();
+                break;
+        }
+
+        HasWon = CheckGoals();
+        
+    }
+
+    private bool CheckGoals()
+    {
+        for (int y = 0; y < Rows; y++)
+        {
+            for (int x = 0; x < Cols; x++)
+            {
+                if (Grid[y, x, 0] is Goal)
+                {
+                    if (Grid[y, x, 1] is not Box)
+                        return false;
+                }
+            }
+        }
+        
+        return true;
     }
 }

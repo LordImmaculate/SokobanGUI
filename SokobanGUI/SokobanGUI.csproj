@@ -19,4 +19,9 @@
             <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
         </PackageReference>
     </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Assets\box.png" />
+      <AvaloniaResource Include="Assets\box.png" />
+    </ItemGroup>
 </Project>
