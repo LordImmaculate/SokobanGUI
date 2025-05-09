@@ -21,27 +21,27 @@ public partial class MainWindow : Window
 {
     private readonly GameState _game;
     
-    private Bitmap wallImage;
-    private Bitmap playerImage;
-    private Bitmap boxImage;
-    private Bitmap goalImage;
-    private Bitmap voidImage;
+    private Dictionary<string, Bitmap> _bitmaps = new();
 
     public MainWindow()
     {
+        Dictionary<Uri, string> uris = new();
+        
+        uris.Add(new Uri("avares://SokobanGUI/Assets/box.png"), "box");
+        uris.Add(new Uri("avares://SokobanGUI/Assets/bateman.png"), "player");
+        uris.Add(new Uri("avares://SokobanGUI/Assets/movemouse.png"), "goal");
+
+        foreach (var (uri, name) in uris)
+        {
+            using var stream = AssetLoader.Open(uri);
+            Bitmap bitmap = new Bitmap(stream);
+            
+            _bitmaps.Add(name, bitmap);
+        }
+        
         InitializeComponent();
         _game = new GameState();
         RenderGame();
-
-        var uris = new Dictionary<Bitmap, Uri>();
-        
-        uris.Add(boxImage, new Uri("avares://SokobanGUI/Assets/box.png"));
-
-        foreach (var (bitmap, uri) in uris)
-        {
-            using var stream = AssetLoader.Open(uri);
-            bitmap = new Bitmap(stream);
-        }
     }
     
     private void RenderGame()
@@ -64,9 +64,9 @@ public partial class MainWindow : Window
                         Fill = tile switch
                         {
                             Wall => Brushes.DarkGray,
-                            Player => Brushes.Blue,
-                            Box => new ImageBrush(wallImage),
-                            Goal => Brushes.Green,
+                            Player => new ImageBrush(_bitmaps["player"]),
+                            Box => new ImageBrush(_bitmaps["box"]),
+                            Goal => new ImageBrush(_bitmaps["goal"]),
                             Void => Brushes.Black,
                             null => z == 1 ? null : Brushes.White
                         },

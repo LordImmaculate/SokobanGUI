@@ -4,7 +4,8 @@
         KeyDown="OnKeyDown"
         Title="Sokoban C#"
         Width="600"
-        Height="600">
+        Height="600"
+        CanResize="False">
     <StackPanel Orientation="Vertical">
     <Canvas x:Name="GameCanvas"/>
     <TextBlock x:Name="WinTextBlock" FontSize="30"></TextBlock>

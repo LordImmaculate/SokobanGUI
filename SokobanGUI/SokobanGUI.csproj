@@ -23,5 +23,10 @@
     <ItemGroup>
       <None Remove="Assets\box.png" />
       <AvaloniaResource Include="Assets\box.png" />
+      <None Remove="Assets\bateman.jpg" />
+      <None Remove="Assets\bateman.png" />
+      <AvaloniaResource Include="Assets\bateman.png" />
+      <None Remove="Assets\movemouse.png" />
+      <AvaloniaResource Include="Assets\movemouse.png" />
     </ItemGroup>
 </Project>
